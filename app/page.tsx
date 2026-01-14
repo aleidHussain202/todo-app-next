@@ -124,7 +124,7 @@ export default function Home() {
           <input 
             type="text"
             placeholder="What needs to be done?"
-            className="flex-1 rounded-lg border border-zinc-200 px-4 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-800 dark:bg-zinc-900 dark:placeholder-zinc-500 dark:text-zinc-200"
+            className="flex-1 rounded-lg border border-zinc-200 px-4 py-2 outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-800 dark:bg-zinc-900 dark:placeholder-zinc-500 dark:text-zinc-200 placeholder-zinc-600"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTodo()}
@@ -166,7 +166,7 @@ export default function Home() {
 
           {filteredTodos.map((todo) => {
             return (
-              <li key={todo.id} className='group flex items-center justify-between p-4 mb-2 rounded-xl border border-transparent bg-white/5 hover:bg-white/10 hover:border-indigo-500/30 transition-all font-medium text-zinc-800 dark:text-zinc-200'><span className={todo.completed ? 'line-through text-zinc-400' : ''}>{todo.text}</span> <div className='flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity'>
+              <li key={todo.id} className='group flex items-center justify-between p-4 mb-2 rounded-xl border border-transparent bg-white/5 hover:bg-white/10 hover:border-indigo-500/30 transition-all font-medium text-zinc-800 dark:text-zinc-200'><span className={todo.completed ? 'line-through text-zinc-400' : ''}>{todo.text}</span> <div className='flex gap-2 transition-opacity opacity-100 md:opacity-0 md:group-hover:opacity-100'>
                 <button onClick={() => toggleTodo(todo.id)} className='text-xs px-3 py-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 hover:scale-105 transition-all'>Done</button>
                 <button onClick={() => deleteTodo(todo.id)} className='text-xs px-3 py-1.5 rounded-full bg-red-500/10 text-red-600 hover:bg-red-500/20 hover:scale-105 transition-all'>Delete</button>
                 </div></li>
