@@ -1,11 +1,24 @@
 @import "tailwindcss";
 
+
+/* --- CSS THEME VARIABLES --- */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --accent: #f43f5e;
 }
 
+/* --- UTILITY CLASSES --- */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+}
+@variant dark (&:where(.dark, .dark *));
+
 @theme inline {
+  --dark-mode: selector;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -22,5 +35,9 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+.dark .glass {
+  background: rgba(0, 0, 0, 0.3);
 }
