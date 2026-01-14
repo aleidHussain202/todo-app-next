@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import { Todo } from './types';
+import { FilterType, Todo } from './types'; // [STEP 2a] Import FilterType here once defined
+
 
 /**
  * Home Component
@@ -30,6 +31,11 @@ export default function Home() {
 
   /** State for the new todo input field */
   const [inputValue, setInputValue] = useState('');
+
+  // [STEP 2b] Add filter state here
+  // const [filter, setFilter] = ... (default to 'all')
+
+  const [filter, setFilter] = useState<FilterType>('all');
 
   /** 
    * Adds a new todo to the list.
@@ -91,6 +97,12 @@ export default function Home() {
     setIsLoaded(true);
   }, []);
 
+  const filteredTodos = todos.filter(todo => {
+    if(filter === 'active') return !todo.completed;
+    if(filter === 'completed') return todo.completed;
+    return true;
+  });
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 p-4 transition-colors dark:bg-zinc-950">
       <button onClick={() => setTheme(mounted && theme === 'dark' ? 'light' : 'dark')} className='fixed top-6 right-6 p-3 rounded-2xl bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 hover:scale-110 transition-all z-50 text-xl'> {theme === 'dark' ? '☀️' : '🌙'} </button>
@@ -105,7 +117,10 @@ export default function Home() {
           </p>
         </div>
 
+        
+
         <div className="flex gap-2">
+        
           <input 
             type="text"
             placeholder="What needs to be done?"
@@ -114,17 +129,42 @@ export default function Home() {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTodo()}
           />
+          
           <button 
             className="rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 transition-colors"
             onClick={addTodo}
           >
             Add
           </button>
+
+          
         </div>
 
         <ul className="space-y-3">
           
-          {todos.map((todo) => {
+          {/* [STEP 3] Replace 'todos' with 'filteredTodos' in the map below */}
+          {/* Create the filteredTodos variable above first! */}
+
+        <div className='flex justify-center gap-4 border-b border-zinc-100 pb-4 dark:border-zinc-800'>
+          {
+            (['all', 'active', 'completed'] as const).map((f) => (
+              <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
+      filter === f
+        ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400'
+        : 'text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200'
+    }`}
+              >
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))
+          }
+        </div>
+
+
+          {filteredTodos.map((todo) => {
             return (
               <li key={todo.id} className='group flex items-center justify-between p-4 mb-2 rounded-xl border border-transparent bg-white/5 hover:bg-white/10 hover:border-indigo-500/30 transition-all font-medium text-zinc-800 dark:text-zinc-200'><span className={todo.completed ? 'line-through text-zinc-400' : ''}>{todo.text}</span> <div className='flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity'>
                 <button onClick={() => toggleTodo(todo.id)} className='text-xs px-3 py-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 hover:scale-105 transition-all'>Done</button>

@@ -11,3 +11,8 @@ export interface Todo {
     /** Unix timestamp (ms) of when the task was created */
     createdAt: number;
 }
+
+// [STEP 1] Define the FilterType type here
+// It should be a union of 'all' | 'active' | 'completed'
+
+export type FilterType = 'all' | 'active' | 'completed'
