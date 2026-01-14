@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/**
+ * STEP 1: DEFINE YOUR DATA MODEL
+ * Your Task:
+ * 1. Create a model named 'Todo'.
+ * 2. Add the following fields:
+ * - id        String   @id @default(uuid())
+ * - text      String
+ * - completed Boolean  @default(false)
+ * - createdAt DateTime @default(now())
+ */
+
+model Todo {
+  id        String   @id @default(uuid())
+  text      String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
