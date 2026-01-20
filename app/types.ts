@@ -9,7 +9,9 @@ export interface Todo {
     /** Boolean flag indicating if the task is finished */
     completed: boolean;
     /** Unix timestamp (ms) of when the task was created */
-    createdAt: number;
+    createdAt: string;
+
+    userId: string;
 }
 
 // [STEP 1] Define the FilterType type here

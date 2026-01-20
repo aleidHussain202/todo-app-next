@@ -40,5 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 File.md
+oldComments.md
 
 /app/generated/prisma

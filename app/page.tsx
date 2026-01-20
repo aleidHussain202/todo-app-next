@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import { FilterType, Todo } from './types'; // [STEP 2a] Import FilterType here once defined
+import { FilterType, Todo } from './types';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 
 /**
@@ -12,8 +14,42 @@ import { FilterType, Todo } from './types'; // [STEP 2a] Import FilterType here 
  * Handles task management logic including adding, toggling, deleting,
  * and persistent storage using localStorage.
  */
-export default function Home() {
+export default function Home() {  
+  
   const { theme, setTheme } = useTheme();
+  const {data: session, status} = useSession();
+  const router = useRouter()
+
+  // Loading State 
+  if (status === 'loading'){
+    return(
+      <div className='flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950'>
+        <div className='text-center'>
+          <div className='text-4xl mb-4'>🔄</div>
+            <p className='text-zinc-600 dark:text-zinc-400'>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if(status === 'unauthenticated'){
+    return(
+      <div className='flex min-h-screen flex-col items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-950 '>
+        <div className='w-full max-w-md bg-white dark:bg-zinc-900/50 glass p-8 rounded-2xl shadow-xl text-center space-y-6'>
+          <div className=''>
+            <h1 className='text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50'>Welcome to My Tasks</h1>
+            <p className='mt-2 text-zinc-600 font-semibold'>You are not signed in, please sign in to manage your tasks.</p>
+          </div>
+          
+          <div className='space-y-3'>
+            <button className='w-full rounded-md bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 transition duration-250 hover:scale-110'
+            onClick={() => {router.push('/login')}}>Login</button>
+            <button className='w-full rounded-md bg-zinc-200 dark:bg-zinc-800 px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100 hover:bg-zinc-300 dark:hover:bg-zinc-700 transition duration-250 hover:scale-110' 
+            onClick={() => {router.push('/register')}}>Create Account</button>
+          </div>
+        </div>
+      </div>
+  )}
 
   /** State to track if the component has mounted to prevent hydration mismatches */
   const [mounted, setMounted] = useState(false);
@@ -31,27 +67,26 @@ export default function Home() {
 
   /** State for the new todo input field */
   const [inputValue, setInputValue] = useState('');
-
-  // [STEP 2b] Add filter state here
-  // const [filter, setFilter] = ... (default to 'all')
-
   const [filter, setFilter] = useState<FilterType>('all');
 
   /** 
    * Adds a new todo to the list.
    * Generates a unique ID and sets the initial completed status to false.
    */
-  const addTodo = () => {
+  const addTodo = async () => {
     if(inputValue.trim() === '') return;
     
-    const newTodo: Todo = {
-      id: crypto.randomUUID(),
-      text: inputValue,
-      completed: false,
-      createdAt: Date.now()
-    }
+    const response = await fetch('/api/todos', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json',},
+      body: JSON.stringify({
+        text: inputValue
+      }),
+    });
 
-    setTodos([...todos, newTodo]);
+
+    const newTodo = await response.json();
+    setTodos([newTodo, ...todos]);
     setInputValue('');
 
   }
@@ -61,40 +96,76 @@ export default function Home() {
    * Toggles the completion status of a todo item.
    * @param id The unique identifier of the todo to toggle
    */
-  const toggleTodo = (id: string) => { 
+  const toggleTodo = async (id: string) => { 
+    const todoToUpdate = todos.find(task => task.id === id);
+
+    const newstatus = !todoToUpdate?.completed;
     
-    setTodos(todos.map(task => {
+    const response = await fetch('/api/todos', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: id,
+        completed: newstatus
+      })
+    });
+
+    const toggledTodo = await response.json();
+    
+  
+  
+  
+      setTodos(todos.map(task => {
     if(task.id === id){
-      return {...task, completed: !task.completed};
+      return toggledTodo;
     } else {
       return task;
     }
   })
   );
+
+
+
   }
 
   /** 
    * Deletes a todo item from the list.
    * @param id The unique identifier of the todo to delete
    */
-  const deleteTodo = (id: string) => {
+  const deleteTodo = async (id: string) => {
+    const response = await fetch('/api/todos', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: id
+      })
+    });
+  
     setTodos(todos.filter( task => task.id !== id));
   }
 
-  /** Save todos to localStorage whenever the list changes */
-  useEffect(() => {
-    if(isLoaded){localStorage.setItem('my-todos', JSON.stringify(todos))}
-  }, [todos])
+  const fetchTodos = async () => {
+    const res = await fetch('/api/todos');
+    const data = await res.json();
 
-  /** Load todos from localStorage on initial component mount */
-  useEffect(() => {
-
-    const saved = localStorage.getItem('my-todos');
-    if(saved){
-      setTodos(JSON.parse(saved));
-    }
-
+    setTodos(data);
     setIsLoaded(true);
+  }
+
+
+
+
+
+
+
+
+  /** Load todos from database on initial component mount */
+  useEffect(() => {
+    fetchTodos()
   }, []);
 
   const filteredTodos = todos.filter(todo => {
@@ -105,6 +176,10 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 p-4 transition-colors dark:bg-zinc-950">
+      <button onClick={() => signOut()}
+      className='fixed top-6 left-6 px-4 py-2 rounded-lg bg-red-500/90 text-white hover:bg-red-600 transition-all shadow-xl text-sm font-medium z-50'>Logout</button>
+
+      {/* Theme toggle button */}
       <button onClick={() => setTheme(mounted && theme === 'dark' ? 'light' : 'dark')} className='fixed top-6 right-6 p-3 rounded-2xl bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 hover:scale-110 transition-all z-50 text-xl'> {theme === 'dark' ? '☀️' : '🌙'} </button>
 
       <main className="w-full max-w-md bg-white dark:bg-zinc-900/50 space-y-8 glass p-8 rounded-2xl shadow-xl">
@@ -141,10 +216,6 @@ export default function Home() {
         </div>
 
         <ul className="space-y-3">
-          
-          {/* [STEP 3] Replace 'todos' with 'filteredTodos' in the map below */}
-          {/* Create the filteredTodos variable above first! */}
-
         <div className='flex justify-center gap-4 border-b border-zinc-100 pb-4 dark:border-zinc-800'>
           {
             (['all', 'active', 'completed'] as const).map((f) => (
