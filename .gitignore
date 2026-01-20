@@ -43,3 +43,9 @@ File.md
 oldComments.md
 
 /app/generated/prisma
+
+# database
+*.db
+*.sqlite
+*.db-journal
+dev.db
