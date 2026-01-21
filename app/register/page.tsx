@@ -60,7 +60,14 @@ export default function RegisterPage() {
         } else {
             // Registration failed
             const data = await res.json();
-            setError(data.error || 'Registration failed')
+            // Handle if data.error is an object (Zod error) or string
+            if (typeof data.error === 'object' && data.error !== null) {
+                 // Simplistic flattening: take first field error or form error
+                 const msg = JSON.stringify(data.error);
+                 setError('Registration failed: ' + msg);
+            } else {
+                 setError(data.error || 'Registration failed');
+            }
         }
 
     }
