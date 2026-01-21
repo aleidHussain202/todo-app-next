@@ -2,6 +2,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth'
+// TODO: Import todoSchema, todoUpdateSchema, todoDeleteSchema from '@/lib/validations'
+
+import { todoSchema, todoDeleteSchema, todoUpdateSchema } from '@/lib/validations';
+import z from 'zod';
+
 // [STEP 1] GET: Fetch all todos
 // export async function GET() {
 //   1. Use prisma.todo.findMany({ orderBy: { createdAt: 'desc' } }) to fetch todos
@@ -60,10 +65,26 @@ export async function POST(request: Request){
     }
 
     // Get the text from the request
-    const {text} = await request.json();
-    if (!text){
-        return NextResponse.json({error: 'Text required'}, {status: 400})
+    const body = await request.json();
+
+    const validation = todoSchema.safeParse(body);
+    
+    // if (!validation.success) return 400...
+    if (!validation.success){
+
+        return NextResponse.json(
+            {
+                error: "validation failed",
+                details: z.flattenError(validation.error)
+            },
+            { status: 400 }
+        )
     }
+
+    const {text} = validation.data;
+
+    
+
 
     //Find the user in the database using their email
     const user = await prisma.user.findUnique({
@@ -99,7 +120,24 @@ export async function POST(request: Request){
 
 
 export async function PUT (request: Request){
-    const {id, completed, text } = await request.json();
+    // get the request through the validation schema
+    const body = await request.json();
+    const validation = todoUpdateSchema.safeParse(body);
+
+    // check if the validation succeeded
+    if(!validation.success){
+        return NextResponse.json(
+            {
+                error: "validation failed",
+                details: z.flattenError(validation.error)
+            },
+            { status: 400 }
+        )
+    }
+
+    // destructor the data back from the validation
+    const {id, completed, text } = validation.data;
+
 
     // Get the session to find out who is logged in
     const session = await auth()
@@ -170,7 +208,23 @@ export async function DELETE(request: Request) {
     );}
 
     
-    const { id } = await request.json();
+    const body = await request.json();
+    const validation = todoDeleteSchema.safeParse(body);
+
+    if(!validation.success){
+        return NextResponse.json(
+                {
+                    error: "validation failed",
+                    details: z.flattenError(validation.error)
+                },
+                { status: 400 }
+            )
+        }
+    
+    
+    const { id } = validation.data;
+
+
 
 
     // Delete only if the todo belongs to this user

@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
+import { registerSchema } from "@/lib/validations";
+import z from "zod";
 
 export async function POST(request: Request){
-    // Get the data from the request body via destructuring
-    const {name, email, password } = await request.json();
+    // Get the data from the request to body 
+    const body = await request.json();
+
+    // run the body through the validation schema
+    const validation = registerSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json({ error: z.flattenError(validation.error) }, 
+      { status: 400 });
+    }
     
+    // destruct the data returned from validation
+    const {name, email, password } = validation.data; 
     // Check if all fields exist
-    if (!name || !email || !password) { return NextResponse.json(
-    { error: 'All fields are required' },
-    { status: 400 }
-  ); }
+
 
     // Check if user already exist 
     const existing = await prisma.user.findUnique({where: {email}});   

@@ -37,4 +37,18 @@ export const todoSchema = z.object({
     .transform(text => text.replace(/<[^>]*>/g, '')),
 });
 
+export const todoUpdateSchema = z.object({
+  id: z.uuid("Invalid todo ID"),
+  completed: z.boolean().optional(),
+  text: z.string()
+    .min(1)
+    .max(500)
+    .trim()
+    .transform(text => text.replace(/<[^>]*>/g, ''))
+    .optional(),
+});
 
+
+export const todoDeleteSchema = z.object({
+  id: z.uuid("Invalid todo ID"),
+});
