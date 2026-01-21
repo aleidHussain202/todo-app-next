@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
 import { FilterType, Todo } from './types';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import ThemeToggle from '@/components/ThemeToggle';
 
 
 /**
@@ -16,12 +16,8 @@ import { useRouter } from 'next/navigation';
  */
 export default function Home() {  
   
-  const { theme, setTheme } = useTheme();
   const {data: session, status} = useSession();
   const router = useRouter()
-
-  /** State to track if the component has mounted to prevent hydration mismatches */
-  const [mounted, setMounted] = useState(false);
 
   /** State to track if the initial data load from localStorage is complete */
   const [isLoaded, setIsLoaded] = useState(false);
@@ -32,11 +28,6 @@ export default function Home() {
   /** State for the new todo input field */
   const [inputValue, setInputValue] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
-
-  /** Set mounted state to true once the component is in the browser */
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const fetchTodos = async () => {
     const res = await fetch('/api/todos');
@@ -173,7 +164,7 @@ export default function Home() {
       className='fixed top-6 left-6 px-4 py-2 rounded-lg bg-red-500/90 text-white hover:bg-red-600 transition-all shadow-xl text-sm font-medium z-50'>Logout</button>
 
       {/* Theme toggle button */}
-      <button onClick={() => setTheme(mounted && theme === 'dark' ? 'light' : 'dark')} className='fixed top-6 right-6 p-3 rounded-2xl bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 hover:scale-110 transition-all z-50 text-xl'> {theme === 'dark' ? '☀️' : '🌙'} </button>
+      <ThemeToggle />
 
       <main className="w-full max-w-md bg-white dark:bg-zinc-900/50 space-y-8 glass p-8 rounded-2xl shadow-xl">
         <div className="text-center">

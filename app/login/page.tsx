@@ -5,6 +5,7 @@ import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import ThemeToggle from "@/components/ThemeToggle"
 
 
 export default function LoginPage() {
@@ -46,9 +47,10 @@ export default function LoginPage() {
     return (
         //TODO: Create the form UI
 
-        <div className="flex justify-center items-center min-h-screen p-5 bg-zinc-200">
-            <div className="w-full max-w-md p-8 bg-zinc-100 rounded-lg shadow-lg">
-                <h1 className="text-3xl font-bold text-center mb-6 text-zinc-700">Login</h1>
+        <div className="flex justify-center items-center min-h-screen p-5 bg-zinc-200 dark:bg-zinc-950 transition-colors">
+            <ThemeToggle />
+            <div className="w-full max-w-md p-8 bg-zinc-100 dark:bg-zinc-900 rounded-lg shadow-lg transition-colors">
+                <h1 className="text-3xl font-bold text-center mb-6 text-zinc-700 dark:text-zinc-100">Login</h1>
                 {error && (
                     <div className="p-3 mb-4 text-center text-red-700
                     bg-red-100 border border-red-300 rounded">{error}</div>
@@ -61,9 +63,9 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required className="w-full px-4 py-3 border 
-                    border-zinc-500 rounded-md text-zinc-800 
-                    focus:outline-none focus:ring-2
-                    focus:ring-blue-300 focus:border-transparent placeholder-zinc-800"/>
+                    border-zinc-500 dark:border-zinc-700 rounded-md text-zinc-800 dark:text-zinc-100 
+                    focus:outline-none focus:ring-2 dark:bg-zinc-800
+                    focus:ring-blue-300 focus:border-transparent placeholder-zinc-800 dark:placeholder-zinc-400"/>
 
                     {/* Password input */}
                     <input type="password" 
@@ -72,9 +74,9 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="w-full px-4 py-3 border 
-                    border-zinc-500 rounded-md text-zinc-800
-                    focus:outline-none focus:ring-2
-                    focus:ring-blue-300 focus:border-transparent placeholder-zinc-800"/>
+                    border-zinc-500 dark:border-zinc-700 rounded-md text-zinc-800 dark:text-zinc-100
+                    focus:outline-none focus:ring-2 dark:bg-zinc-800
+                    focus:ring-blue-300 focus:border-transparent placeholder-zinc-800 dark:placeholder-zinc-400"/>
 
                     {/* Submit button */}
                     <button type="submit" className="w-full px-4 py-3 font-semibold text-white bg-blue-400 
@@ -82,8 +84,8 @@ export default function LoginPage() {
                     focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 transition-colors">Login</button>
                 </form>
 
-                <p className="mt-6 text-center text-zinc-800">Don't have an account? <Link href="/register" className="font-semibold 
-                text-blue-700 hover:underline ">Register</Link></p>
+                <p className="mt-6 text-center text-zinc-800 dark:text-zinc-300">Don't have an account? <Link href="/register" className="font-semibold 
+                text-blue-700 hover:underline dark:text-blue-400">Register</Link></p>
             </div>
         </div>
     )
