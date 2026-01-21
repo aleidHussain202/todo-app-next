@@ -20,6 +20,37 @@ export default function Home() {
   const {data: session, status} = useSession();
   const router = useRouter()
 
+  /** State to track if the component has mounted to prevent hydration mismatches */
+  const [mounted, setMounted] = useState(false);
+
+  /** State to track if the initial data load from localStorage is complete */
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  /** Main todos state array */
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  /** State for the new todo input field */
+  const [inputValue, setInputValue] = useState('');
+  const [filter, setFilter] = useState<FilterType>('all');
+
+  /** Set mounted state to true once the component is in the browser */
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const fetchTodos = async () => {
+    const res = await fetch('/api/todos');
+    const data = await res.json();
+
+    setTodos(data);
+    setIsLoaded(true);
+  }
+
+  /** Load todos from database on initial component mount */
+  useEffect(() => {
+    fetchTodos()
+  }, []);
+
   // Loading State 
   if (status === 'loading'){
     return(
@@ -50,24 +81,6 @@ export default function Home() {
         </div>
       </div>
   )}
-
-  /** State to track if the component has mounted to prevent hydration mismatches */
-  const [mounted, setMounted] = useState(false);
-
-  /** State to track if the initial data load from localStorage is complete */
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  /** Set mounted state to true once the component is in the browser */
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  /** Main todos state array */
-  const [todos, setTodos] = useState<Todo[]>([]);
-
-  /** State for the new todo input field */
-  const [inputValue, setInputValue] = useState('');
-  const [filter, setFilter] = useState<FilterType>('all');
 
   /** 
    * Adds a new todo to the list.
@@ -147,26 +160,6 @@ export default function Home() {
   
     setTodos(todos.filter( task => task.id !== id));
   }
-
-  const fetchTodos = async () => {
-    const res = await fetch('/api/todos');
-    const data = await res.json();
-
-    setTodos(data);
-    setIsLoaded(true);
-  }
-
-
-
-
-
-
-
-
-  /** Load todos from database on initial component mount */
-  useEffect(() => {
-    fetchTodos()
-  }, []);
 
   const filteredTodos = todos.filter(todo => {
     if(filter === 'active') return !todo.completed;
